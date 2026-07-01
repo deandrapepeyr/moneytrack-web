@@ -539,6 +539,7 @@ export default function TransactionsPage() {
         })()}
       </div>
       {/* End Sticky Header Group */}
+      </div>
 
       {/* Transaction List */}
       <div className="flex-1 pb-10">

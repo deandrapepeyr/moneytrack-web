@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Wallet, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 
@@ -209,6 +208,8 @@ export default function LoginPage() {
                         Create Account <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
+                  </Button>
+                </form>
                 </div>
               )}
             </CardContent>
