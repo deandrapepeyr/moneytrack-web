@@ -211,7 +211,7 @@ export default function TransactionsPage() {
     }).catch((err: any) => {
       // Kalau gagal, kita fetch ulang untuk mengembalikan state semula
       alert(`Gagal menyimpan transaksi ke server: ${err.message || "Error"}`);
-      fetchData(true);
+      fetchData();
     });
   };
 
@@ -228,7 +228,7 @@ export default function TransactionsPage() {
     api.post("transactions/delete", { id: editingTxnId })
       .catch((err: any) => {
         alert(`Gagal menghapus transaksi: ${err.message || "Error"}`);
-        fetchData(true);
+        fetchData();
       });
   };
 
