@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'MoneyTrack',
     description: 'Master your personal finances intuitively',
     start_url: '/',
-    display: 'standalone',
+    display: 'browser',
     background_color: '#ffffff',
     theme_color: '#5b4fe0',
     icons: [

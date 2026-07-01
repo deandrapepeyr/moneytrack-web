@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "MoneyTrack Finance App",
   description: "Manage your personal finances",
   appleWebApp: {
-    capable: true,
+    capable: false,
     statusBarStyle: "default",
     title: "MoneyTrack",
   },
@@ -43,6 +43,20 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
+        {/* Force unregister any existing PWA service workers */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.unregister();
+                  }
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
