@@ -353,7 +353,7 @@ export default function TransactionsPage() {
   );
 
   return (
-    <div className="p-4 md:p-8 lg:p-10 animate-in fade-in duration-500 flex flex-col gap-5">
+    <div className="p-4 md:p-8 lg:p-10 animate-in fade-in duration-500 flex flex-col gap-5 h-[calc(100vh-80px)] md:h-full overflow-hidden">
 
       {/* Slicing 1: Summary Mini */}
       <div className={`${
@@ -538,87 +538,89 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transaction List */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="relative">
-            <div className="h-10 w-10 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-          </div>
-          <p className="text-[13px] text-[#9a9cae] font-medium">Memuat transaksi...</p>
-        </div>
-      ) : Object.keys(displayGrouped).length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-            <FileText className="w-7 h-7 text-[#9a9cae]" />
-          </div>
-          <p className="text-[14px] font-semibold text-[#181825]">Belum ada transaksi</p>
-          <p className="text-[12px] text-[#9a9cae]">Tap tombol + untuk menambahkan</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {Object.entries(displayGrouped).map(([date, txns]) => (
-            <div key={date} className={`${
-              theme === "feminine" ? "bg-fuchsia-50/50 border-fuchsia-100" : "bg-slate-50/50 border-slate-200"
-            } border rounded-[24px] shadow-sm overflow-hidden transition-colors duration-500`}>
-              {/* Date Header */}
-              <div className={`px-5 py-3 border-b transition-colors duration-500 ${
-                theme === "feminine" ? "border-fuchsia-100 bg-fuchsia-50/80" : "border-[#f0f0f5] bg-[#fafafe]"
-              }`}>
-                <p className="text-[12px] font-bold text-[#6b6d80] uppercase tracking-wide">
-                  {formatDateLabel(date)}
-                </p>
-              </div>
-
-              {/* Transactions */}
-              <div className="flex flex-col">
-                {txns.map((txn, idx) => {
-                  const isIncome = txn.type === "INCOME";
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => handleEditClick(txn)}
-                      className={`flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/80 transition-colors cursor-pointer group ${
-                        idx !== txns.length - 1 ? "border-b border-[#f0f0f5]" : ""
-                      }`}
-                    >
-                      <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm transition-transform group-hover:scale-105 ${
-                          isIncome
-                            ? "bg-gradient-to-br from-[#0ecf8f] to-[#08a873]"
-                            : "bg-gradient-to-br from-[#ff4d6d] to-[#e11d48]"
-                        }`}
-                      >
-                        {isIncome ? (
-                          <ArrowDownRight className="w-5 h-5" />
-                        ) : (
-                          <ArrowUpRight className="w-5 h-5" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-[13px] font-bold text-[#181825] truncate group-hover:text-[#5b4fe0] transition-colors">
-                          {txn.name || txn.description}
-                        </h4>
-                        <p className="text-[11px] text-[#9a9cae] mt-0.5 font-medium">
-                          {txn.category_name}
-                        </p>
-                      </div>
-
-                      <div
-                        className={`text-[13px] font-bold shrink-0 ${
-                          isIncome ? "text-[#08a873]" : "text-[#e11d48]"
-                        }`}
-                      >
-                        {isIncome ? "+" : "-"}
-                        {formatIDR(txn.amount)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+      <div className="flex-1 overflow-y-auto pr-1 pb-10 scrollbar-hide -mr-1">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="relative">
+              <div className="h-10 w-10 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
             </div>
-          ))}
-        </div>
-      )}
+            <p className="text-[13px] text-[#9a9cae] font-medium">Memuat transaksi...</p>
+          </div>
+        ) : Object.keys(displayGrouped).length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+              <FileText className="w-7 h-7 text-[#9a9cae]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#181825]">Belum ada transaksi</p>
+            <p className="text-[12px] text-[#9a9cae]">Tap tombol + untuk menambahkan</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {Object.entries(displayGrouped).map(([date, txns]) => (
+              <div key={date} className={`${
+                theme === "feminine" ? "bg-fuchsia-50/50 border-fuchsia-100" : "bg-slate-50/50 border-slate-200"
+              } border rounded-[24px] shadow-sm overflow-hidden transition-colors duration-500`}>
+                {/* Date Header */}
+                <div className={`px-5 py-3 border-b transition-colors duration-500 ${
+                  theme === "feminine" ? "border-fuchsia-100 bg-fuchsia-50/80" : "border-[#f0f0f5] bg-[#fafafe]"
+                }`}>
+                  <p className="text-[12px] font-bold text-[#6b6d80] uppercase tracking-wide">
+                    {formatDateLabel(date)}
+                  </p>
+                </div>
+
+                {/* Transactions */}
+                <div className="flex flex-col">
+                  {txns.map((txn, idx) => {
+                    const isIncome = txn.type === "INCOME";
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => handleEditClick(txn)}
+                        className={`flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/80 transition-colors cursor-pointer group ${
+                          idx !== txns.length - 1 ? "border-b border-[#f0f0f5]" : ""
+                        }`}
+                      >
+                        <div
+                          className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm transition-transform group-hover:scale-105 ${
+                            isIncome
+                              ? "bg-gradient-to-br from-[#0ecf8f] to-[#08a873]"
+                              : "bg-gradient-to-br from-[#ff4d6d] to-[#e11d48]"
+                          }`}
+                        >
+                          {isIncome ? (
+                            <ArrowDownRight className="w-5 h-5" />
+                          ) : (
+                            <ArrowUpRight className="w-5 h-5" />
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-[13px] font-bold text-[#181825] truncate group-hover:text-[#5b4fe0] transition-colors">
+                            {txn.name || txn.description}
+                          </h4>
+                          <p className="text-[11px] text-[#9a9cae] mt-0.5 font-medium">
+                            {txn.category_name}
+                          </p>
+                        </div>
+
+                        <div
+                          className={`text-[13px] font-bold shrink-0 ${
+                            isIncome ? "text-[#08a873]" : "text-[#e11d48]"
+                          }`}
+                        >
+                          {isIncome ? "+" : "-"}
+                          {formatIDR(txn.amount)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Add Transaction Modal */}
       {showAddModal && (
