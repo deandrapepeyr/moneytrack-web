@@ -72,9 +72,16 @@ export default async function TransactionsPage({
 
   const query = resolvedParams.search?.toLowerCase() || "";
   const typeFilter = resolvedParams.type || "ALL";
+  const monthFilter = resolvedParams.month || "";
 
   const filteredTransactions = transactions.filter((txn: any) => {
     if (typeFilter !== "ALL" && txn.type !== typeFilter) return false;
+    
+    if (monthFilter) {
+      // txn.date is like "2026-06-30T..." or "2026-06-30"
+      // monthFilter is "YYYY-MM"
+      if (!txn.date.startsWith(monthFilter)) return false;
+    }
     
     if (query) {
       const name = (txn.name || txn.description || "").toLowerCase();
@@ -144,29 +151,52 @@ export default async function TransactionsPage({
       }`}>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           
-          <form method="GET" action="/transactions" className="relative w-full sm:w-auto flex-1">
+          <form method="GET" action="/transactions" className="relative w-full sm:w-auto flex-1 flex gap-2">
             <input type="hidden" name="type" value={typeFilter} />
-            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-              theme === "feminine" ? "text-pink-400" : "text-slate-400"
-            }`} />
+            
+            <div className="relative flex-1">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
+                theme === "feminine" ? "text-pink-400" : "text-slate-400"
+              }`} />
+              <input 
+                type="text" 
+                name="search"
+                defaultValue={query}
+                placeholder="Cari transaksi..." 
+                className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-sm border focus:outline-none focus:ring-2 transition-all ${
+                  theme === "feminine" 
+                    ? "bg-pink-50/30 border-pink-100 focus:border-pink-300 focus:ring-pink-200/50 text-pink-900 placeholder:text-pink-300" 
+                    : "bg-slate-50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-100 text-slate-900"
+                }`}
+              />
+            </div>
+
             <input 
-              type="text" 
-              name="search"
-              defaultValue={query}
-              placeholder="Cari transaksi..." 
-              className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-sm border focus:outline-none focus:ring-2 transition-all ${
+              type="month" 
+              name="month"
+              defaultValue={monthFilter}
+              className={`w-full sm:w-auto px-3 py-2.5 rounded-xl text-sm border focus:outline-none focus:ring-2 transition-all ${
                 theme === "feminine" 
-                  ? "bg-pink-50/30 border-pink-100 focus:border-pink-300 focus:ring-pink-200/50 text-pink-900 placeholder:text-pink-300" 
+                  ? "bg-pink-50/30 border-pink-100 focus:border-pink-300 focus:ring-pink-200/50 text-pink-900" 
                   : "bg-slate-50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-100 text-slate-900"
               }`}
             />
+
+            <button 
+              type="submit"
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold text-white shadow-sm transition-colors ${
+                theme === "feminine" ? "bg-pink-500 hover:bg-pink-600 shadow-pink-500/25" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/25"
+              }`}
+            >
+              Cari
+            </button>
           </form>
 
           <div className="flex flex-wrap gap-2 w-full sm:w-auto p-1">
             {(["ALL", "INCOME", "OUTCOME"] as const).map((t) => (
               <Link
                 key={t}
-                href={`/transactions?type=${t}${query ? `&search=${query}` : ""}`}
+                href={`/transactions?type=${t}${query ? `&search=${query}` : ""}${monthFilter ? `&month=${monthFilter}` : ""}`}
                 className={`flex-1 sm:flex-none px-4 py-2 rounded-full text-[12px] font-semibold transition-all text-center ${
                   typeFilter === t
                     ? t === "INCOME"
