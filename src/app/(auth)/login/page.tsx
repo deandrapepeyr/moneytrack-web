@@ -65,7 +65,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 relative">
       {/* Background decorations - Apple inspired blur orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
       </div>
@@ -112,13 +112,13 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email address</Label>
-                    <div className="relative group">
+                    <div className="relative group z-50">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="email"
                         type="email"
                         placeholder="you@example.com"
-                        className="pl-9 bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500"
+                        className="pl-9 bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500 relative z-50"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -131,7 +131,7 @@ export default function LoginPage() {
                       <Label htmlFor="pin">Secure PIN</Label>
                       <span className="text-[10px] text-zinc-400">6 DIGITS</span>
                     </div>
-                    <div className="relative group">
+                    <div className="relative group z-50">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="pin"
@@ -139,7 +139,7 @@ export default function LoginPage() {
                         inputMode="numeric"
                         maxLength={6}
                         placeholder="••••••"
-                        className="pl-9 tracking-[0.3em] font-mono bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500"
+                        className="pl-9 tracking-[0.3em] font-mono bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500 relative z-50"
                         value={pin}
                         onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                         required
@@ -165,13 +165,13 @@ export default function LoginPage() {
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="reg-email">Email address</Label>
-                    <div className="relative group">
+                    <div className="relative group z-50">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="reg-email"
                         type="email"
                         placeholder="you@example.com"
-                        className="pl-9 bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500"
+                        className="pl-9 bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500 relative z-50"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -184,7 +184,7 @@ export default function LoginPage() {
                       <Label htmlFor="reg-pin">Create PIN</Label>
                       <span className="text-[10px] text-zinc-400">6 DIGITS ONLY</span>
                     </div>
-                    <div className="relative group">
+                    <div className="relative group z-50">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="reg-pin"
@@ -192,7 +192,7 @@ export default function LoginPage() {
                         inputMode="numeric"
                         maxLength={6}
                         placeholder="••••••"
-                        className="pl-9 tracking-[0.3em] font-mono bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500"
+                        className="pl-9 tracking-[0.3em] font-mono bg-white/50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500 relative z-50"
                         value={pin}
                         onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                         required
