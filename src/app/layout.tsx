@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import "./globals.css";
@@ -16,12 +16,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MoneyTrack Finance App",
   description: "Manage your personal finances",
-  themeColor: "#5b4fe0",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "MoneyTrack",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#5b4fe0",
 };
 
 export default function RootLayout({
