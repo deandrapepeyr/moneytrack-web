@@ -18,15 +18,23 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem("moneytrack_theme") as ThemeType;
-    if (savedTheme === "masculine" || savedTheme === "feminine") {
-      setThemeState(savedTheme);
+    try {
+      const savedTheme = localStorage.getItem("moneytrack_theme") as ThemeType;
+      if (savedTheme === "masculine" || savedTheme === "feminine") {
+        setThemeState(savedTheme);
+      }
+    } catch (e) {
+      console.warn("localStorage is blocked");
     }
   }, []);
 
-  const setTheme = (newTheme: ThemeType) => {
-    setThemeState(newTheme);
-    localStorage.setItem("moneytrack_theme", newTheme);
+  const setTheme = (theme: ThemeType) => {
+    setThemeState(theme);
+    try {
+      localStorage.setItem("moneytrack_theme", theme);
+    } catch (e) {
+      console.warn("localStorage is blocked");
+    }
   };
 
   const toggleTheme = () => {
