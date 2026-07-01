@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Wallet, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,12 +81,24 @@ export default function LoginPage() {
         </div>
 
         <Card className="glass-card border-zinc-200/50 dark:border-zinc-800/50 shadow-xl overflow-hidden">
-          <Tabs defaultValue="login" className="w-full">
+          <div className="w-full">
             <CardHeader className="pb-3 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800/50">
-              <TabsList className="grid w-full grid-cols-2 bg-zinc-200/50 dark:bg-zinc-800/50">
-                <TabsTrigger value="login" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-950 data-[state=active]:shadow-sm">Sign In</TabsTrigger>
-                <TabsTrigger value="register" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-950 data-[state=active]:shadow-sm">Register</TabsTrigger>
-              </TabsList>
+              <div className="grid w-full grid-cols-2 bg-zinc-200/50 dark:bg-zinc-800/50 p-1 rounded-lg">
+                <button 
+                  type="button"
+                  onClick={() => setActiveTab("login")} 
+                  className={`py-1.5 text-sm font-medium rounded-md transition-all ${activeTab === "login" ? "bg-white dark:bg-zinc-950 shadow-sm text-zinc-900 dark:text-zinc-50" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                >
+                  Sign In
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setActiveTab("register")} 
+                  className={`py-1.5 text-sm font-medium rounded-md transition-all ${activeTab === "register" ? "bg-white dark:bg-zinc-950 shadow-sm text-zinc-900 dark:text-zinc-50" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                >
+                  Register
+                </button>
+              </div>
             </CardHeader>
             
             <CardContent className="pt-6">
@@ -95,12 +108,13 @@ export default function LoginPage() {
                 </div>
               )}
               
-              <TabsContent value="login" className="mt-0 space-y-4 outline-none">
+              {activeTab === "login" && (
+                <div className="mt-0 space-y-4 animate-in fade-in zoom-in-95 duration-200">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email address</Label>
                     <div className="relative group">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="email"
                         type="email"
@@ -119,7 +133,7 @@ export default function LoginPage() {
                       <span className="text-[10px] text-zinc-400">6 DIGITS</span>
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="pin"
                         type="password"
@@ -144,14 +158,16 @@ export default function LoginPage() {
                     )}
                   </Button>
                 </form>
-              </TabsContent>
+                </div>
+              )}
               
-              <TabsContent value="register" className="mt-0 space-y-4 outline-none">
+              {activeTab === "register" && (
+                <div className="mt-0 space-y-4 animate-in fade-in zoom-in-95 duration-200">
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="reg-email">Email address</Label>
                     <div className="relative group">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="reg-email"
                         type="email"
@@ -170,7 +186,7 @@ export default function LoginPage() {
                       <span className="text-[10px] text-zinc-400">6 DIGITS ONLY</span>
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none" />
                       <Input
                         id="reg-pin"
                         type="password"
@@ -193,9 +209,8 @@ export default function LoginPage() {
                         Create Account <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
-                  </Button>
-                </form>
-              </TabsContent>
+                </div>
+              )}
             </CardContent>
             
             <CardFooter className="flex flex-col space-y-4 pt-2 pb-6 px-6">
@@ -217,7 +232,7 @@ export default function LoginPage() {
                 Google
               </Button>
             </CardFooter>
-          </Tabs>
+          </div>
         </Card>
       </div>
     </div>
