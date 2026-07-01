@@ -1,7 +1,7 @@
 // d:\firda-finance\moneytrack-web\src\lib\api.ts
 
 // ⚠️ PENTING: Ganti URL di bawah ini dengan URL Web App milikmu yang didapat dari Google Apps Script!
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbyK9DJTDe7bAGotqhI_sZF09k5Wvvw-Gy1P1aHb05LldsDYAlIkk4SkSNNfo7Zo52nD/exec';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
 
 class ApiClient {
   private baseUrl: string;
