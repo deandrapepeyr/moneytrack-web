@@ -77,7 +77,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   {userName.charAt(0).toUpperCase()}
                 </div>
                 
-                <form action={logoutAction}>
+                <form action={async () => {
+                  "use server";
+                  await logoutAction();
+                }}>
                   <button 
                     type="submit"
                     className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-sm shrink-0 border bg-slate-800 border-slate-700 text-slate-300 hover:bg-rose-600 hover:border-rose-600 hover:text-white"
