@@ -70,7 +70,7 @@ export default function LoginPage() {
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-md space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl shadow-indigo-500/10 border border-zinc-200/50 dark:border-zinc-800/50 mb-2 transition-transform hover:scale-105 duration-300">
             <Wallet className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
@@ -108,7 +108,7 @@ export default function LoginPage() {
               )}
               
               {activeTab === "login" && (
-                <div className="mt-0 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                <div className="mt-0 space-y-4">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email address</Label>
@@ -161,7 +161,7 @@ export default function LoginPage() {
               )}
               
               {activeTab === "register" && (
-                <div className="mt-0 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                <div className="mt-0 space-y-4">
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="reg-email">Email address</Label>

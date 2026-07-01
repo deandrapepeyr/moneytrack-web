@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       <div 
         className={theme === "feminine" ? "theme-feminine" : "theme-masculine"} 
-        style={{ visibility: mounted ? "visible" : "hidden", minHeight: "100vh" }}
+        style={{ minHeight: "100vh" }}
       >
         {children}
       </div>
