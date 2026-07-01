@@ -48,18 +48,25 @@ export default function DashboardPage() {
     else if (hour < 19) setGreeting("Selamat sore");
     else setGreeting("Selamat malam");
 
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const user = JSON.parse(userData);
-      setUserName(user.display_name || "User");
-    }
+    try {
+      const userData = document.cookie.split('; ').find(row => row.startsWith('user_data='));
+      if (userData) {
+        const user = JSON.parse(decodeURIComponent(userData.split('=')[1]));
+        setUserName(user.display_name || "User");
+      }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      const cachedSummary = localStorage.getItem("dashboard_summary");
-      const cachedCashflow = localStorage.getItem("dashboard_cashflow");
-      const cachedRecent = localStorage.getItem("dashboard_recent");
+      let cachedSummary = null;
+      let cachedCashflow = null;
+      let cachedRecent = null;
+      try {
+        cachedSummary = localStorage.getItem("dashboard_summary");
+        cachedCashflow = localStorage.getItem("dashboard_cashflow");
+        cachedRecent = localStorage.getItem("dashboard_recent");
+      } catch (e) {}
 
       let hasCache = false;
 
@@ -84,7 +91,7 @@ export default function DashboardPage() {
 
         if (summaryRes.success) {
           setSummary(summaryRes.data);
-          localStorage.setItem("dashboard_summary", JSON.stringify(summaryRes.data));
+          try { localStorage.setItem("dashboard_summary", JSON.stringify(summaryRes.data)); } catch (e) {}
         }
         if (cashflowRes.success) {
           const formattedData = cashflowRes.data.map((item: any) => {
@@ -95,11 +102,11 @@ export default function DashboardPage() {
             };
           });
           setCashflow(formattedData);
-          localStorage.setItem("dashboard_cashflow", JSON.stringify(formattedData));
+          try { localStorage.setItem("dashboard_cashflow", JSON.stringify(formattedData)); } catch (e) {}
         }
         if (recentRes.success) {
           setRecentTxns(recentRes.data);
-          localStorage.setItem("dashboard_recent", JSON.stringify(recentRes.data));
+          try { localStorage.setItem("dashboard_recent", JSON.stringify(recentRes.data)); } catch (e) {}
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);

@@ -85,8 +85,12 @@ export default function TransactionsPage() {
     setIsLoading(true);
     try {
       // Try loading from cache first
-      const cachedTxns = localStorage.getItem("cached_transactions");
-      const cachedCats = localStorage.getItem("cached_categories");
+      let cachedTxns = null;
+      let cachedCats = null;
+      try {
+        cachedTxns = localStorage.getItem("cached_transactions");
+        cachedCats = localStorage.getItem("cached_categories");
+      } catch (e) {}
       
       if (cachedTxns) setTransactions(JSON.parse(cachedTxns));
       if (cachedCats) setApiCategories(JSON.parse(cachedCats));
@@ -99,11 +103,11 @@ export default function TransactionsPage() {
 
       if (txnsRes.data) {
         setTransactions(txnsRes.data);
-        localStorage.setItem("cached_transactions", JSON.stringify(txnsRes.data));
+        try { localStorage.setItem("cached_transactions", JSON.stringify(txnsRes.data)); } catch (e) {}
       }
       if (catsRes.data) {
         setApiCategories(catsRes.data);
-        localStorage.setItem("cached_categories", JSON.stringify(catsRes.data));
+        try { localStorage.setItem("cached_categories", JSON.stringify(catsRes.data)); } catch (e) {}
       }
     } catch (err) {
       console.error("Error fetching data:", err);
