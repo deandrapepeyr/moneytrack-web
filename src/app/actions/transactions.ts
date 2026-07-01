@@ -27,8 +27,8 @@ export async function addTransactionAction(formData: FormData) {
 
   const type = formData.get("type") as string;
   const amount = parseInt(formData.get("amount") as string, 10);
-  const name = formData.get("name") as string;
-  const category_name = formData.get("category") as string;
+  const description = formData.get("name") as string;
+  const category_id = formData.get("category") as string;
   const date = formData.get("date") as string;
   
   try {
@@ -37,8 +37,8 @@ export async function addTransactionAction(formData: FormData) {
       token: token,
       type,
       amount,
-      name,
-      category_name,
+      category_id,
+      description,
       date
     });
 

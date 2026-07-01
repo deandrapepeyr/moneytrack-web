@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
@@ -12,6 +13,45 @@ export default async function AddTransactionPage({
   const resolvedParams = await searchParams;
   const cookieStore = await cookies();
   const theme = cookieStore.get("moneytrack_theme")?.value || "masculine";
+  const userCookie = cookieStore.get("user_data")?.value;
+  
+  if (!userCookie) redirect("/login");
+  
+  let user = null;
+  try {
+    try {
+      user = JSON.parse(decodeURIComponent(userCookie));
+    } catch {
+      user = JSON.parse(userCookie);
+    }
+  } catch (e) {
+    redirect("/login");
+  }
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
+  
+  const getCategories = unstable_cache(
+    async (userId: string) => {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "categories/list", user_id: userId }),
+        });
+        const result = await res.json();
+        return result.success ? result.data : [];
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        return [];
+      }
+    },
+    ['categories-data'],
+    { tags: ['categories', `user-${user.user_id}`], revalidate: 3600 }
+  );
+
+  const categories = await getCategories(user.user_id);
+  const incomeCategories = categories.filter((c: any) => c.type === "INCOME");
+  const outcomeCategories = categories.filter((c: any) => c.type === "OUTCOME");
   
   // Default to today's date in YYYY-MM-DD format
   const today = new Date();
@@ -129,17 +169,31 @@ export default async function AddTransactionPage({
               <label className={`text-sm font-semibold ${
                 theme === "feminine" ? "text-pink-900" : "text-slate-700"
               }`}>Kategori</label>
-              <input 
-                type="text" 
+              <select 
                 name="category"
                 required
-                placeholder="Contoh: Makanan"
-                className={`w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 transition-all cursor-pointer ${
                   theme === "feminine" 
-                    ? "bg-pink-50/30 border-pink-100 focus:border-pink-400 focus:ring-pink-200/50 text-pink-900 placeholder:text-pink-300" 
+                    ? "bg-pink-50/30 border-pink-100 focus:border-pink-400 focus:ring-pink-200/50 text-pink-900" 
                     : "bg-slate-50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-100 text-slate-900"
                 }`}
-              />
+              >
+                <option value="" disabled selected>Pilih kategori...</option>
+                <optgroup label="Pengeluaran">
+                  {outcomeCategories.map((cat: any) => (
+                    <option key={cat.category_id} value={cat.category_id}>
+                      {cat.icon} {cat.name}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Pemasukan">
+                  {incomeCategories.map((cat: any) => (
+                    <option key={cat.category_id} value={cat.category_id}>
+                      {cat.icon} {cat.name}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
             </div>
 
             <div className="space-y-2">
