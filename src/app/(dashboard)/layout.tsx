@@ -5,6 +5,16 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, ArrowRightLeft, PiggyBank, BarChart3, Settings, LogOut, Wallet, ChevronRight, Sparkles, CalendarDays, Palette, Cat, Heart } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
+import { logoutAction } from "@/app/actions/auth";
+
+// Helper to read cookies on client
+function getCookie(name: string) {
+  if (typeof document === 'undefined') return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return null;
+}
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -36,18 +46,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    const userCookie = getCookie("user_data");
+    if (!userCookie) {
       router.push("/login");
       return;
     }
-    setUser(JSON.parse(userData));
+    
+    try {
+      setUser(JSON.parse(decodeURIComponent(userCookie)));
+    } catch (e) {
+      router.push("/login");
+      return;
+    }
     setIsLoading(false);
     
     // Listen for custom event if needed
     const handleUserUpdate = () => {
-      const updatedData = localStorage.getItem("user");
-      if (updatedData) setUser(JSON.parse(updatedData));
+      const updatedCookie = getCookie("user_data");
+      if (updatedCookie) {
+        try {
+          setUser(JSON.parse(decodeURIComponent(updatedCookie)));
+        } catch (e) {}
+      }
     };
     window.addEventListener("user_updated", handleUserUpdate);
     return () => window.removeEventListener("user_updated", handleUserUpdate);
@@ -64,12 +84,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const res = await api.post("auth/update_profile", { display_name: editName });
       
       if (res.success) {
-        // Update local storage
+        // Dispatch event for other components like dashboard.
+        // Server action should ideally update the cookie, but for client state:
         const updatedUser = { ...user, display_name: editName };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
+        document.cookie = `user_data=${encodeURIComponent(JSON.stringify(updatedUser))}; path=/; max-age=2592000`;
         setUser(updatedUser);
         setShowProfileModal(false);
-        // Dispatch event for other components like dashboard
         window.dispatchEvent(new Event("user_updated"));
       }
     } catch (err) {
@@ -79,9 +99,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    setIsLoading(true);
+    await logoutAction();
     router.push("/login");
   };
 

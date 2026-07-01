@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Wallet, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
-import api from "@/lib/api";
+import { loginAction, registerAction } from "@/app/actions/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,15 +23,12 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await api.post("auth/pin", {
-        email,
-        pin
-      });
-
+      const response = await loginAction(email, pin);
+      
       if (response.success) {
-        localStorage.setItem("auth_token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
         router.push("/dashboard");
+      } else {
+        setError(response.error || "Failed to login");
       }
     } catch (err: any) {
       setError(err.message || "Failed to login. Please check your credentials.");
@@ -46,18 +43,16 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const response = await api.post("auth/register", {
-        email,
-        pin,
-        display_name: email.split("@")[0]
-      });
+      const response = await registerAction(email, pin);
 
       if (response.success) {
-        // Auto login after register
-        await handleLogin(e);
+        router.push("/dashboard");
+      } else {
+        setError(response.error || "Registration failed");
       }
     } catch (err: any) {
       setError(err.message || "Registration failed. Email might already exist.");
+    } finally {
       setIsLoading(false);
     }
   };

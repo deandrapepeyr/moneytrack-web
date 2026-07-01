@@ -6,6 +6,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/ma
 class ApiClient {
   private baseUrl: string;
 
+  // Helper to read cookies on client
+  private getCookie(name: string): string {
+    if (typeof document === 'undefined') return '';
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+    return '';
+  }
+
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
@@ -17,7 +26,11 @@ class ApiClient {
 
     let token = '';
     if (typeof window !== 'undefined') {
-      token = localStorage.getItem('auth_token') || '';
+      // Try to get token from localStorage first (for legacy), then cookie
+      try {
+        token = localStorage.getItem('auth_token') || '';
+      } catch (e) {}
+      if (!token) token = this.getCookie('auth_token');
     }
 
     const payload = {
