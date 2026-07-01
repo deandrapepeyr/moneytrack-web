@@ -123,13 +123,16 @@
   }
   html {
     @apply font-sans;
-    overscroll-behavior: none;
     background-color: #0f172a; /* slate-900 — prevents white flash on overscroll */
   }
   body {
     @apply bg-background text-foreground;
-    overscroll-behavior: none;
     background-color: #0f172a;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, textarea {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
   }
 }
 
