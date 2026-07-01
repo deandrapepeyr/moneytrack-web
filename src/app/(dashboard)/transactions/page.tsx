@@ -298,21 +298,7 @@ export default function TransactionsPage() {
     return days;
   }, [filter.month, filter.year]);
 
-  // Demo data when API returns nothing
-  const demoTransactions: Transaction[] = [
-    { name: "Gaji bulanan", type: "INCOME", amount: 6200000, category_name: "Salary", date: "2026-06-30" },
-    { name: "Belanja bulanan", type: "OUTCOME", amount: 850000, category_name: "Groceries", date: "2026-06-30" },
-    { name: "Listrik & air", type: "OUTCOME", amount: 420000, category_name: "Utilities", date: "2026-06-28" },
-    { name: "Freelance project", type: "INCOME", amount: 1500000, category_name: "Freelance", date: "2026-06-28" },
-    { name: "Makan di luar", type: "OUTCOME", amount: 275000, category_name: "Food", date: "2026-06-25" },
-    { name: "Bensin motor", type: "OUTCOME", amount: 50000, category_name: "Transport", date: "2026-06-25" },
-    { name: "Nonton bioskop", type: "OUTCOME", amount: 75000, category_name: "Entertainment", date: "2026-06-22" },
-    { name: "Transfer dari teman", type: "INCOME", amount: 300000, category_name: "Gift", date: "2026-06-22" },
-    { name: "Obat-obatan", type: "OUTCOME", amount: 150000, category_name: "Health", date: "2026-06-20" },
-    { name: "Beli buku", type: "OUTCOME", amount: 120000, category_name: "Education", date: "2026-06-20" },
-  ];
-
-  const displayTransactions = transactions.length > 0 ? transactions : demoTransactions;
+  const displayTransactions = transactions;
 
   const displayFiltered = useMemo(() => {
     return displayTransactions.filter((txn) => {
