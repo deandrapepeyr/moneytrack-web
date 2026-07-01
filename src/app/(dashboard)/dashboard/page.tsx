@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Wallet, ArrowUpRight, ArrowDownRight, PiggyBank, CalendarDays } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight, PiggyBank, CalendarDays, ArrowRightLeft } from "lucide-react";
 import ChartsWrapper from "./ChartsWrapper";
 
 const formatIDR = (amount: number) => {
@@ -13,7 +13,7 @@ const formatIDR = (amount: number) => {
 };
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const userCookie = cookieStore.get("user_data")?.value;
   
   if (!userCookie) redirect("/login");

@@ -9,8 +9,8 @@ const sidebarLinks = [
   { name: "Transactions", href: "/transactions", icon: ArrowRightLeft },
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies();
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
   const userCookie = cookieStore.get("user_data")?.value;
   
   if (!userCookie) {
