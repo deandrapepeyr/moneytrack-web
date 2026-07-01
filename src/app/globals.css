@@ -130,9 +130,13 @@
     background-color: #0f172a;
     -webkit-tap-highlight-color: transparent;
   }
-  input, textarea {
+  input, textarea, select {
     -webkit-user-select: auto !important;
     user-select: auto !important;
+    -webkit-touch-callout: default !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    transform: translateZ(0);
   }
 }
 
