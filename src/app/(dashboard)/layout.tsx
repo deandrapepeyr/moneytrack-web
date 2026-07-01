@@ -203,35 +203,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             })}
           </nav>
 
-          {/* User Profile */}
-          <div className="mt-auto space-y-3 relative z-30">
-            <div 
-              onClick={() => {
-                setEditName(user?.display_name || "");
-                setShowProfileModal(true);
-              }}
-              className="p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm relative z-30 cursor-pointer hover:bg-white/10 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 border ${
-                  theme === "feminine" ? "bg-fuchsia-800 text-pink-100 border-fuchsia-700" : "bg-slate-800 text-slate-200 border-slate-700"
-                }`}>
-                  {user?.display_name?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{user?.display_name}</p>
-                  <p className="text-xs text-slate-400 truncate">{user?.email}</p>
-                </div>
-              </div>
-            </div>
-            <button 
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-300 text-sm font-medium group"
-            >
-              <LogOut className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-              Sign Out
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -288,10 +259,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
               </div>
               
-              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-full text-white flex items-center justify-center font-bold text-[13px] md:text-[14px] shadow-sm shrink-0 border ${
-                theme === "feminine" ? "bg-pink-500 border-pink-400" : "bg-blue-600 border-blue-500"
-              }`}>
-                {userName.charAt(0).toUpperCase()}
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    setEditName(user?.display_name || "");
+                    setShowProfileModal(true);
+                  }}
+                  className={`w-9 h-9 md:w-10 md:h-10 rounded-full text-white flex items-center justify-center font-bold text-[13px] md:text-[14px] shadow-sm shrink-0 border transition-transform hover:scale-105 ${
+                    theme === "feminine" ? "bg-pink-500 border-pink-400" : "bg-indigo-600 border-indigo-500"
+                  }`}
+                  title="Edit Profile"
+                >
+                  {userName.charAt(0).toUpperCase()}
+                </button>
+                
+                <button 
+                  onClick={handleLogout}
+                  className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-sm shrink-0 border transition-all hover:scale-105 ${
+                    theme === "feminine" ? "bg-fuchsia-800 border-fuchsia-700 text-pink-200 hover:bg-rose-500 hover:border-rose-500 hover:text-white" : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-rose-600 hover:border-rose-600 hover:text-white"
+                  }`}
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
