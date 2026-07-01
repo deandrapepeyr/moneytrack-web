@@ -28,9 +28,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   
   // Create a basic server-side layout without JS dependencies
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col md:flex-row bg-[#f8fafc]">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#f8fafc]">
       {/* Sidebar */}
-      <aside className="w-[272px] hidden md:flex flex-col shrink-0 h-screen relative border-r overflow-hidden bg-[#0f172a] border-slate-800">
+      <aside className="w-[272px] hidden md:flex flex-col shrink-0 h-screen sticky top-0 border-r overflow-hidden bg-[#0f172a] border-slate-800">
         <div className="relative z-10 flex flex-col h-full p-5">
           <div className="flex items-center gap-3 px-3 py-5 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm bg-blue-600">
@@ -61,8 +61,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </aside>
 
       {/* Right Side */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="shrink-0 border-b pt-4 pb-3 px-4 md:px-8 z-40 relative overflow-hidden bg-[#0f172a] border-slate-800">
+      <div className="flex-1 flex flex-col min-h-screen w-full">
+        <header className="shrink-0 border-b pt-4 pb-3 px-4 md:px-8 z-40 sticky top-0 bg-[#0f172a] border-slate-800">
           <div className="flex items-center justify-between relative z-10">
               <div className="flex flex-col min-w-0 pr-2">
                 <div className="flex items-center gap-1.5 text-[12px] md:text-[13px] text-slate-400 font-medium mb-0.5">
@@ -93,7 +93,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#f8fafc] pb-[80px] md:pb-0 overscroll-none">
+        <div className="flex-1 bg-[#f8fafc] pb-[80px] md:pb-0">
           {children}
         </div>
 

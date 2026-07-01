@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Wallet, ArrowUpRight, ArrowDownRight, PiggyBank, CalendarDays, ArrowRightLeft } from "lucide-react";
-import ChartsWrapper from "./ChartsWrapper";
 
 const formatIDR = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -135,8 +134,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
-
-      <ChartsWrapper chartData={chartData} />
 
       {/* Recent Transactions & Budget Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
