@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MoneyTrack Finance App",
   description: "Manage your personal finances",
+  themeColor: "#5b4fe0",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MoneyTrack",
+  },
 };
 
 export default function RootLayout({
