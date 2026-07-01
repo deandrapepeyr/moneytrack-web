@@ -31,12 +31,12 @@ export default async function AddTransactionPage({
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
   
   const getCategories = unstable_cache(
-    async (userId: string) => {
+    async (userId: string, token: string) => {
       try {
         const res = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "categories/list", user_id: userId }),
+          body: JSON.stringify({ action: "categories/list", user_id: userId, token }),
         });
         const result = await res.json();
         return result.success ? result.data : [];
@@ -49,7 +49,8 @@ export default async function AddTransactionPage({
     { tags: ['categories', `user-${user.user_id}`], revalidate: 3600 }
   );
 
-  const categories = await getCategories(user.user_id);
+  const token = cookieStore.get("auth_token")?.value || "";
+  const categories = await getCategories(user.user_id, token);
   const incomeCategories = categories.filter((c: any) => c.type === "INCOME");
   const outcomeCategories = categories.filter((c: any) => c.type === "OUTCOME");
   

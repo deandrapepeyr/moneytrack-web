@@ -35,13 +35,13 @@ export default async function DashboardPage() {
   
   // Wrap the fetch in unstable_cache to memorize the response on Vercel
   const getDashboardData = unstable_cache(
-    async (userId: string) => {
+    async (userId: string, token: string) => {
       try {
         const fetchApi = async (action: string, extraData = {}) => {
           const res = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action, user_id: userId, ...extraData }),
+            body: JSON.stringify({ action, user_id: userId, token, ...extraData }),
           });
           return res.json();
         };
@@ -66,7 +66,8 @@ export default async function DashboardPage() {
   let cashflow = [];
   let recentTxns = [];
 
-  const { summaryRes, cashflowRes, recentRes } = await getDashboardData(user.user_id);
+  const token = cookieStore.get("auth_token")?.value || "";
+  const { summaryRes, cashflowRes, recentRes } = await getDashboardData(user.user_id, token);
 
   if (summaryRes?.success) summary = summaryRes.data;
   if (cashflowRes?.success) {

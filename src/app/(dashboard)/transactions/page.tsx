@@ -46,12 +46,12 @@ export default async function TransactionsPage({
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
   
   const getTransactions = unstable_cache(
-    async (userId: string) => {
+    async (userId: string, token: string) => {
       try {
         const res = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "dashboard/recent", user_id: userId, limit: 100 }),
+          body: JSON.stringify({ action: "dashboard/recent", user_id: userId, token, limit: 100 }),
         });
         const result = await res.json();
         if (result.success) {
@@ -67,7 +67,8 @@ export default async function TransactionsPage({
     { tags: ['transactions', `user-${user.user_id}`], revalidate: 3600 }
   );
 
-  let transactions = await getTransactions(user.user_id);
+  const token = cookieStore.get("auth_token")?.value || "";
+  let transactions = await getTransactions(user.user_id, token);
 
   const query = resolvedParams.search?.toLowerCase() || "";
   const typeFilter = resolvedParams.type || "ALL";
