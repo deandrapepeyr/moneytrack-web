@@ -1,7 +1,9 @@
 // d:\firda-finance\moneytrack-web\src\lib\api.ts
 
-// ⚠️ PENTING: Ganti URL di bawah ini dengan URL Web App milikmu yang didapat dari Google Apps Script!
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxzhfBKlWaq1yL1xcs1X1d_wQlF8SvHHa3jubA0jbErGwa44ARAif4BBVHJPTk5o8M/exec';
+// Use proxy on client to bypass ISP blocks, but use direct URL on Vercel Server
+const API_URL = typeof window === 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec')
+  : '/api/proxy';
 
 class ApiClient {
   private baseUrl: string;
