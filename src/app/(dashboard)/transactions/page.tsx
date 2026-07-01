@@ -32,7 +32,11 @@ export default async function TransactionsPage({
   
   let user = null;
   try {
-    user = JSON.parse(decodeURIComponent(userCookie));
+    try {
+      user = JSON.parse(decodeURIComponent(userCookie));
+    } catch {
+      user = JSON.parse(userCookie);
+    }
   } catch (e) {
     redirect("/login");
   }
@@ -45,7 +49,7 @@ export default async function TransactionsPage({
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "dashboard/recent", user_id: user.id, limit: 100 }),
+      body: JSON.stringify({ action: "dashboard/recent", user_id: user.user_id, limit: 100 }),
       cache: 'no-store'
     });
     const result = await res.json();

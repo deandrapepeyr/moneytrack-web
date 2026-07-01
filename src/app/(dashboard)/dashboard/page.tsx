@@ -20,7 +20,11 @@ export default async function DashboardPage() {
   
   let user = null;
   try {
-    user = JSON.parse(decodeURIComponent(userCookie));
+    try {
+      user = JSON.parse(decodeURIComponent(userCookie));
+    } catch {
+      user = JSON.parse(userCookie);
+    }
   } catch (e) {
     redirect("/login");
   }
@@ -37,7 +41,7 @@ export default async function DashboardPage() {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, user_id: user.id, ...extraData }),
+        body: JSON.stringify({ action, user_id: user.user_id, ...extraData }),
         cache: 'no-store'
       });
       return res.json();

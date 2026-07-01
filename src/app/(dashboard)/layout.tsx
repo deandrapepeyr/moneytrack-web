@@ -21,7 +21,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let user = null;
   try {
-    user = JSON.parse(decodeURIComponent(userCookie));
+    try {
+      user = JSON.parse(decodeURIComponent(userCookie));
+    } catch {
+      user = JSON.parse(userCookie);
+    }
   } catch (e) {
     redirect("/login");
   }
