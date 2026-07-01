@@ -14,6 +14,7 @@ const formatIDR = (amount: number) => {
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user_data")?.value;
+  const theme = cookieStore.get("moneytrack_theme")?.value || "masculine";
   
   if (!userCookie) redirect("/login");
   
@@ -90,7 +91,11 @@ export default async function DashboardPage() {
     <div className="p-4 md:p-8 lg:p-10 flex flex-col gap-6">
 
       {/* Unified Balance Card */}
-      <div className="rounded-[24px] p-6 lg:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-900/10 bg-[#0f172a]">
+      <div className={`rounded-[24px] p-6 lg:p-8 text-white relative overflow-hidden shadow-xl transition-colors duration-500 ${
+        theme === "feminine" 
+          ? "bg-pink-500 shadow-pink-500/20" 
+          : "bg-[#0f172a] shadow-slate-900/10"
+      }`}>
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
           <Wallet className="w-64 h-64 rotate-12" />
         </div>
@@ -103,31 +108,43 @@ export default async function DashboardPage() {
 
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-500/10">
-                <ArrowDownRight className="w-5 h-5 text-emerald-500" />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === "feminine" ? "bg-white/20 text-white" : "bg-emerald-500/10 text-emerald-500"
+              }`}>
+                <ArrowDownRight className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] text-slate-400 font-medium mb-0.5 uppercase tracking-wide">Income</p>
+                <p className={`text-[11px] font-medium mb-0.5 uppercase tracking-wide ${
+                  theme === "feminine" ? "text-pink-100" : "text-slate-400"
+                }`}>Income</p>
                 <p className="text-[15px] font-semibold text-white">{formatIDR(income)}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-rose-500/10">
-                <ArrowUpRight className="w-5 h-5 text-rose-500" />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === "feminine" ? "bg-white/20 text-white" : "bg-rose-500/10 text-rose-500"
+              }`}>
+                <ArrowUpRight className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] text-slate-400 font-medium mb-0.5 uppercase tracking-wide">Expense</p>
+                <p className={`text-[11px] font-medium mb-0.5 uppercase tracking-wide ${
+                  theme === "feminine" ? "text-pink-100" : "text-slate-400"
+                }`}>Expense</p>
                 <p className="text-[15px] font-semibold text-white">{formatIDR(expense)}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <PiggyBank className="w-5 h-5 text-blue-500" />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === "feminine" ? "bg-white/20 text-white" : "bg-blue-500/10 text-blue-500"
+              }`}>
+                <PiggyBank className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] text-slate-400 font-medium mb-0.5 uppercase tracking-wide">Sisa Budget</p>
+                <p className={`text-[11px] font-medium mb-0.5 uppercase tracking-wide ${
+                  theme === "feminine" ? "text-pink-100" : "text-slate-400"
+                }`}>Sisa Budget</p>
                 <p className="text-[15px] font-semibold text-white">{formatIDR(remainingBudget)}</p>
               </div>
             </div>
@@ -153,17 +170,23 @@ export default async function DashboardPage() {
               const dateObj = new Date(txn.date);
               
               return (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#f8fafc] transition-colors group border border-transparent hover:border-[#e9e9f2]">
+                <div key={idx} className={`flex items-center justify-between p-3 rounded-2xl transition-colors group border border-transparent ${
+                  theme === "feminine" ? "hover:bg-pink-50 hover:border-pink-100" : "hover:bg-[#f8fafc] hover:border-[#e9e9f2]"
+                }`}>
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${
-                      isIncome ? "bg-[#e8fbf4] text-[#0ecf8f]" : "bg-[#fff0f2] text-[#ff4d6d]"
+                      isIncome 
+                        ? (theme === "feminine" ? "bg-fuchsia-100 text-fuchsia-500" : "bg-[#e8fbf4] text-[#0ecf8f]")
+                        : (theme === "feminine" ? "bg-pink-100 text-pink-500" : "bg-[#fff0f2] text-[#ff4d6d]")
                     }`}>
                       {isIncome ? <ArrowDownRight className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
                     </div>
                     <div>
-                      <h4 className="text-[14px] font-bold text-[#181825] mb-1">{txn.name}</h4>
+                      <h4 className={`text-[14px] font-bold mb-1 ${theme === "feminine" ? "text-pink-900" : "text-[#181825]"}`}>{txn.name}</h4>
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#f1f1f5] text-[#6b6d80]">
+                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md ${
+                          theme === "feminine" ? "bg-pink-50 text-pink-600" : "bg-[#f1f1f5] text-[#6b6d80]"
+                        }`}>
                           {txn.category_name}
                         </span>
                       </div>
@@ -171,10 +194,16 @@ export default async function DashboardPage() {
                   </div>
                   
                   <div className="text-right">
-                    <p className={`text-[15px] font-bold mb-1 ${isIncome ? "text-[#0ecf8f]" : "text-[#181825]"}`}>
+                    <p className={`text-[15px] font-bold mb-1 ${
+                      isIncome 
+                        ? (theme === "feminine" ? "text-fuchsia-500" : "text-[#0ecf8f]") 
+                        : (theme === "feminine" ? "text-pink-900" : "text-[#181825]")
+                    }`}>
                       {isIncome ? "+" : "-"}{formatIDR(txn.amount)}
                     </p>
-                    <p className="text-[11px] font-medium text-[#9a9cae] flex items-center justify-end gap-1">
+                    <p className={`text-[11px] font-medium flex items-center justify-end gap-1 ${
+                      theme === "feminine" ? "text-pink-400" : "text-[#9a9cae]"
+                    }`}>
                       <CalendarDays className="w-3 h-3" />
                       {dateObj.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                     </p>
