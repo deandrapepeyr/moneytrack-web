@@ -353,7 +353,7 @@ export default function TransactionsPage() {
   );
 
   return (
-    <div className="p-4 md:p-8 lg:p-10 animate-in fade-in duration-500 flex flex-col gap-5 h-[calc(100vh-80px)] md:h-full overflow-hidden">
+    <div className="p-4 md:p-8 lg:p-10 animate-in fade-in duration-500 flex flex-col gap-5">
 
       {/* Slicing 1: Summary Mini */}
       <div className={`${
@@ -412,8 +412,10 @@ export default function TransactionsPage() {
         </button>
       </div>
 
-      {/* Slicing 3: Search & Filter Bar */}
-      <div className="flex items-center gap-2">
+      {/* Sticky Header Group for Search and Dates */}
+      <div className="sticky top-0 z-10 bg-[#f8fafc] dark:bg-[#0f172a] -mx-4 px-4 md:-mx-8 md:px-8 lg:-mx-10 lg:px-10 py-4 flex flex-col gap-5 border-b border-[#e9e9f2] dark:border-zinc-800 shadow-sm">
+        {/* Slicing 3: Search & Filter Bar */}
+        <div className="flex items-center gap-2">
         <div className={`flex-1 flex items-center gap-2 border rounded-2xl px-4 py-2.5 shadow-sm focus-within:ring-2 transition-all duration-500 ${
           theme === "feminine" ? "bg-fuchsia-50 border-fuchsia-100 focus-within:border-fuchsia-300 focus-within:ring-fuchsia-100" : "bg-slate-50 border-slate-200 focus-within:border-slate-400 focus-within:ring-slate-100"
         }`}>
@@ -536,9 +538,10 @@ export default function TransactionsPage() {
           });
         })()}
       </div>
+      {/* End Sticky Header Group */}
 
       {/* Transaction List */}
-      <div className="flex-1 overflow-y-auto pr-1 pb-10 scrollbar-hide -mr-1">
+      <div className="flex-1 pb-10">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="relative">
