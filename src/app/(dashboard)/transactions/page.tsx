@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -44,22 +45,29 @@ export default async function TransactionsPage({
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
   
-  let transactions = [];
+  const getTransactions = unstable_cache(
+    async (userId: string) => {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "dashboard/recent", user_id: userId, limit: 100 }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          return result.data;
+        }
+        return [];
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        return [];
+      }
+    },
+    ['transactions-data'],
+    { tags: ['transactions', `user-${user.user_id}`], revalidate: 3600 }
+  );
 
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "dashboard/recent", user_id: user.user_id, limit: 100 }),
-      cache: 'no-store'
-    });
-    const result = await res.json();
-    if (result.success) {
-      transactions = result.data;
-    }
-  } catch (err) {
-    console.error("Error fetching data:", err);
-  }
+  let transactions = await getTransactions(user.user_id);
 
   const query = resolvedParams.search?.toLowerCase() || "";
   const typeFilter = resolvedParams.type || "ALL";

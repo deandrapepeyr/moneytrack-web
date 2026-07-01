@@ -2,6 +2,7 @@
 
 import api from "@/lib/api";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function addTransactionAction(formData: FormData) {
@@ -40,6 +41,9 @@ export async function addTransactionAction(formData: FormData) {
     });
 
     if (response.success) {
+      // Invalidate the cache for dashboard and transactions
+      revalidatePath("/dashboard");
+      revalidatePath("/transactions");
       redirect("/transactions");
     } else {
       redirect(`/transactions/add?error=${encodeURIComponent(response.error?.message || "Gagal menyimpan transaksi")}`);

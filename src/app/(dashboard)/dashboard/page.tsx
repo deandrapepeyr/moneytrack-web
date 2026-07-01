@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { Wallet, ArrowUpRight, ArrowDownRight, PiggyBank, CalendarDays, ArrowRightLeft } from "lucide-react";
 
@@ -32,41 +33,52 @@ export default async function DashboardPage() {
   // Fetch data directly on the server
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
   
+  // Wrap the fetch in unstable_cache to memorize the response on Vercel
+  const getDashboardData = unstable_cache(
+    async (userId: string) => {
+      try {
+        const fetchApi = async (action: string, extraData = {}) => {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action, user_id: userId, ...extraData }),
+          });
+          return res.json();
+        };
+
+        const [summaryRes, cashflowRes, recentRes] = await Promise.all([
+          fetchApi("dashboard/summary"),
+          fetchApi("dashboard/cashflow"),
+          fetchApi("dashboard/recent", { limit: "5" })
+        ]);
+
+        return { summaryRes, cashflowRes, recentRes };
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        return { summaryRes: {}, cashflowRes: {}, recentRes: {} };
+      }
+    },
+    ['dashboard-data'],
+    { tags: ['dashboard', `user-${user.user_id}`], revalidate: 3600 }
+  );
+
   let summary = null;
   let cashflow = [];
   let recentTxns = [];
 
-  try {
-    const fetchApi = async (action: string, extraData = {}) => {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, user_id: user.user_id, ...extraData }),
-        cache: 'no-store'
-      });
-      return res.json();
-    };
+  const { summaryRes, cashflowRes, recentRes } = await getDashboardData(user.user_id);
 
-    const [summaryRes, cashflowRes, recentRes] = await Promise.all([
-      fetchApi("dashboard/summary"),
-      fetchApi("dashboard/cashflow"),
-      fetchApi("dashboard/recent", { limit: "5" })
-    ]);
-
-    if (summaryRes.success) summary = summaryRes.data;
-    if (cashflowRes.success) {
-      cashflow = cashflowRes.data.map((item: any) => {
-        const dateObj = new Date(item.date);
-        return {
-          ...item,
-          displayDate: `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`
-        };
-      });
-    }
-    if (recentRes.success) recentTxns = recentRes.data;
-  } catch (error) {
-    console.error("Failed to fetch dashboard data:", error);
+  if (summaryRes?.success) summary = summaryRes.data;
+  if (cashflowRes?.success) {
+    cashflow = cashflowRes.data.map((item: any) => {
+      const dateObj = new Date(item.date);
+      return {
+        ...item,
+        displayDate: `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`
+      };
+    });
   }
+  if (recentRes?.success) recentTxns = recentRes.data;
 
   const balance = summary?.current_balance || 0;
   const income = summary?.total_income || 0;
