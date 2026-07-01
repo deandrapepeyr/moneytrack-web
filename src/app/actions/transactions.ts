@@ -31,6 +31,9 @@ export async function addTransactionAction(formData: FormData) {
   const category_id = formData.get("category") as string;
   const date = formData.get("date") as string;
   
+  let isSuccess = false;
+  let errorMessage = "";
+
   try {
     const response = await api.post("transactions/create", {
       user_id: user.user_id,
@@ -43,14 +46,20 @@ export async function addTransactionAction(formData: FormData) {
     });
 
     if (response.success) {
-      // Invalidate the cache for dashboard and transactions
-      revalidatePath("/dashboard");
-      revalidatePath("/transactions");
-      redirect("/transactions");
+      isSuccess = true;
     } else {
-      redirect(`/transactions/add?error=${encodeURIComponent(response.error?.message || "Gagal menyimpan transaksi")}`);
+      errorMessage = response.error?.message || "Gagal menyimpan transaksi";
     }
   } catch (error: any) {
-    redirect(`/transactions/add?error=${encodeURIComponent(error.message || "Terjadi kesalahan server")}`);
+    errorMessage = error.message || "Terjadi kesalahan server";
+  }
+
+  if (isSuccess) {
+    // Invalidate the cache for dashboard and transactions
+    revalidatePath("/dashboard");
+    revalidatePath("/transactions");
+    redirect("/transactions");
+  } else {
+    redirect(`/transactions/add?error=${encodeURIComponent(errorMessage)}`);
   }
 }
