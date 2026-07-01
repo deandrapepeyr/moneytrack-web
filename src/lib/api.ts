@@ -26,8 +26,8 @@ class ApiClient {
       throw new Error("API URL belum diisi. Silakan buka src/lib/api.ts dan masukkan URL Web App kamu.");
     }
 
-    let token = '';
-    if (typeof window !== 'undefined') {
+    let token = data.token || '';
+    if (!token && typeof window !== 'undefined') {
       // Try to get token from localStorage first (for legacy), then cookie
       try {
         token = localStorage.getItem('auth_token') || '';

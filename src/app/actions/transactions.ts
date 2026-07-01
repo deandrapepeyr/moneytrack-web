@@ -8,8 +8,9 @@ import { redirect } from "next/navigation";
 export async function addTransactionAction(formData: FormData) {
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user_data")?.value;
+  const token = cookieStore.get("auth_token")?.value;
   
-  if (!userCookie) {
+  if (!userCookie || !token) {
     redirect("/login");
   }
 
@@ -33,6 +34,7 @@ export async function addTransactionAction(formData: FormData) {
   try {
     const response = await api.post("transactions/create", {
       user_id: user.user_id,
+      token: token,
       type,
       amount,
       name,
