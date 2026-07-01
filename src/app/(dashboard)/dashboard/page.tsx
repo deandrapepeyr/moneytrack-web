@@ -1,26 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  PiggyBank,
-  ArrowUpRight,
-  ArrowDownRight,
-  CalendarDays,
-} from "lucide-react";
-import { useTheme } from "@/lib/ThemeContext";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from "recharts";
-import api from "@/lib/api";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Wallet, ArrowUpRight, ArrowDownRight, PiggyBank, CalendarDays } from "lucide-react";
+import ChartsWrapper from "./ChartsWrapper";
 
 const formatIDR = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -31,106 +12,56 @@ const formatIDR = (amount: number) => {
   }).format(amount);
 };
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const { theme } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
-  const [summary, setSummary] = useState<any>(null);
-  const [cashflow, setCashflow] = useState<any[]>([]);
-  const [recentTxns, setRecentTxns] = useState<any[]>([]);
-  const [greeting, setGreeting] = useState("Selamat pagi");
-  const [userName, setUserName] = useState("");
+export default async function DashboardPage() {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user_data")?.value;
+  
+  if (!userCookie) redirect("/login");
+  
+  let user = null;
+  try {
+    user = JSON.parse(decodeURIComponent(userCookie));
+  } catch (e) {
+    redirect("/login");
+  }
 
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Selamat pagi");
-    else if (hour < 17) setGreeting("Selamat siang");
-    else if (hour < 19) setGreeting("Selamat sore");
-    else setGreeting("Selamat malam");
+  // Fetch data directly on the server
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://script.google.com/macros/s/AKfycbxcBwrRwiv3dRFvD_zB9O1Ru-jGF4rJorSge7ptYuI3rnbANtKSEkFrGr-2vE0KhyrM/exec';
+  
+  let summary = null;
+  let cashflow = [];
+  let recentTxns = [];
 
-    try {
-      const userData = document.cookie.split('; ').find(row => row.startsWith('user_data='));
-      if (userData) {
-        const user = JSON.parse(decodeURIComponent(userData.split('=')[1]));
-        setUserName(user.display_name || "User");
-      }
-    } catch (e) {}
-  }, []);
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      let cachedSummary = null;
-      let cachedCashflow = null;
-      let cachedRecent = null;
-      try {
-        cachedSummary = localStorage.getItem("dashboard_summary");
-        cachedCashflow = localStorage.getItem("dashboard_cashflow");
-        cachedRecent = localStorage.getItem("dashboard_recent");
-      } catch (e) {}
-
-      let hasCache = false;
-
-      if (cachedSummary && cachedCashflow && cachedRecent) {
-        try {
-          setSummary(JSON.parse(cachedSummary));
-          setCashflow(JSON.parse(cachedCashflow));
-          setRecentTxns(JSON.parse(cachedRecent));
-          hasCache = true;
-          setIsLoading(false);
-        } catch (e) {}
-      }
-
-      if (!hasCache) setIsLoading(true);
-
-      try {
-        const [summaryRes, cashflowRes, recentRes] = await Promise.all([
-          api.get("dashboard/summary"),
-          api.get("dashboard/cashflow"),
-          api.get("dashboard/recent", { limit: "5" })
-        ]);
-
-        if (summaryRes.success) {
-          setSummary(summaryRes.data);
-          try { localStorage.setItem("dashboard_summary", JSON.stringify(summaryRes.data)); } catch (e) {}
-        }
-        if (cashflowRes.success) {
-          const formattedData = cashflowRes.data.map((item: any) => {
-            const dateObj = new Date(item.date);
-            return {
-              ...item,
-              displayDate: `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`
-            };
-          });
-          setCashflow(formattedData);
-          try { localStorage.setItem("dashboard_cashflow", JSON.stringify(formattedData)); } catch (e) {}
-        }
-        if (recentRes.success) {
-          setRecentTxns(recentRes.data);
-          try { localStorage.setItem("dashboard_recent", JSON.stringify(recentRes.data)); } catch (e) {}
-        }
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-      } finally {
-        if (!hasCache) setIsLoading(false);
-      }
+  try {
+    const fetchApi = async (action: string, extraData = {}) => {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, user_id: user.id, ...extraData }),
+        cache: 'no-store'
+      });
+      return res.json();
     };
 
-    fetchDashboardData();
-  }, []);
+    const [summaryRes, cashflowRes, recentRes] = await Promise.all([
+      fetchApi("dashboard/summary"),
+      fetchApi("dashboard/cashflow"),
+      fetchApi("dashboard/recent", { limit: "5" })
+    ]);
 
-  if (isLoading) {
-    return (
-      <div className="p-4 md:p-6 lg:p-8 space-y-6">
-        <div className="h-16 rounded-2xl bg-[#e9e9f2] animate-pulse" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-[92px] rounded-2xl bg-[#e9e9f2] animate-pulse" />
-          ))}
-        </div>
-        <div className="h-[180px] rounded-2xl bg-[#ffffff] animate-pulse border border-[#e9e9f2]" />
-        <div className="h-64 rounded-2xl bg-[#ffffff] animate-pulse border border-[#e9e9f2]" />
-      </div>
-    );
+    if (summaryRes.success) summary = summaryRes.data;
+    if (cashflowRes.success) {
+      cashflow = cashflowRes.data.map((item: any) => {
+        const dateObj = new Date(item.date);
+        return {
+          ...item,
+          displayDate: `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`
+        };
+      });
+    }
+    if (recentRes.success) recentTxns = recentRes.data;
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
   }
 
   const balance = summary?.current_balance || 0;
@@ -149,26 +80,18 @@ export default function DashboardPage() {
     { displayDate: "30 Jun", income: 1300000, outcome: 550000 },
   ];
 
-  // Only use real data if it has actual non-zero values
   const hasRealCashflow = cashflow.length > 1 && cashflow.some((d: any) => (d.income > 0 || d.outcome > 0));
   const chartData = hasRealCashflow ? cashflow : demoChartData;
 
   const recentData = recentTxns.length > 0 ? recentTxns : [
-    { name: "Gaji bulanan", type: "INCOME", amount: 6200000, category_name: "Income", date: "2026-06-30" },
-    { name: "Belanja bulanan", type: "OUTCOME", amount: 850000, category_name: "Groceries", date: "2026-06-28" },
-    { name: "Listrik & air", type: "OUTCOME", amount: 420000, category_name: "Utilities", date: "2026-06-25" },
-    { name: "Freelance project", type: "INCOME", amount: 1500000, category_name: "Income", date: "2026-06-22" },
-    { name: "Makan di luar", type: "OUTCOME", amount: 275000, category_name: "Food", date: "2026-06-20" },
+    { name: "Belum ada transaksi", type: "OUTCOME", amount: 0, category_name: "-", date: new Date().toISOString() },
   ];
 
   return (
-    <div className="p-4 md:p-8 lg:p-10 animate-in fade-in duration-500 flex flex-col gap-6">
-
+    <div className="p-4 md:p-8 lg:p-10 flex flex-col gap-6">
 
       {/* Unified Balance Card */}
-      <div className={`rounded-[24px] p-6 lg:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-900/10 transition-colors duration-500 ${
-        theme === "feminine" ? "bg-fuchsia-900" : "bg-[#0f172a]"
-      }`}>
+      <div className="rounded-[24px] p-6 lg:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-900/10 bg-[#0f172a]">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
           <Wallet className="w-64 h-64 rotate-12" />
         </div>
@@ -181,10 +104,8 @@ export default function DashboardPage() {
 
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                theme === "feminine" ? "bg-pink-500/20" : "bg-emerald-500/10"
-              }`}>
-                <ArrowDownRight className={`w-5 h-5 ${theme === "feminine" ? "text-pink-400" : "text-emerald-500"}`} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-500/10">
+                <ArrowDownRight className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
                 <p className="text-[11px] text-slate-400 font-medium mb-0.5 uppercase tracking-wide">Income</p>
@@ -193,10 +114,8 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                theme === "feminine" ? "bg-fuchsia-400/20" : "bg-rose-500/10"
-              }`}>
-                <ArrowUpRight className={`w-5 h-5 ${theme === "feminine" ? "text-fuchsia-400" : "text-rose-500"}`} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-rose-500/10">
+                <ArrowUpRight className="w-5 h-5 text-rose-500" />
               </div>
               <div>
                 <p className="text-[11px] text-slate-400 font-medium mb-0.5 uppercase tracking-wide">Expense</p>
@@ -217,123 +136,59 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Cashflow Panel */}
-      <div className="bg-white border border-[#e9e9f2] rounded-[24px] p-5 lg:p-6 shadow-sm">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h2 className="text-[16px] font-bold text-[#181825]">Cashflow</h2>
-            <p className="text-[12px] text-[#9a9cae] mt-1">Income vs expense</p>
-          </div>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-[#6b6d80]">
-              <span className={`w-2 h-2 rounded-full ${theme === "feminine" ? "bg-pink-500" : "bg-[#0ecf8f]"}`} />
-              Income
-            </span>
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-[#6b6d80]">
-              <span className={`w-2 h-2 rounded-full ${theme === "feminine" ? "bg-fuchsia-600" : "bg-[#ff4d6d]"}`} />
-              Expense
-            </span>
-          </div>
-        </div>
-        
-        <div className="h-[220px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eceef5" />
-              <XAxis 
-                dataKey="displayDate" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: '#9a9cae', fontSize: 11, fontWeight: 500 }}
-                dy={8}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff',
-                  border: '1px solid #e9e9f2',
-                  borderRadius: '10px',
-                  color: '#181825',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  padding: '6px 10px',
-                }}
-                itemStyle={{ color: '#6b6d80', fontWeight: 500 }}
-                formatter={(value: any) => formatIDR(Number(value) || 0)}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="income" 
-                stroke={theme === "feminine" ? "#ec4899" : "#0ecf8f"}
-                strokeWidth={2.5}
-                fillOpacity={0} 
-                fill="transparent" 
-                activeDot={{ r: 4, fill: theme === "feminine" ? "#ec4899" : "#0ecf8f" }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="outcome" 
-                stroke={theme === "feminine" ? "#c026d3" : "#ff4d6d"}
-                strokeWidth={2.5}
-                fillOpacity={0} 
-                fill="transparent" 
-                activeDot={{ r: 4, fill: theme === "feminine" ? "#c026d3" : "#ff4d6d" }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <ChartsWrapper chartData={chartData} />
 
-      {/* Transaksi Terakhir Panel */}
-      <div className="bg-white border border-[#e9e9f2] rounded-[24px] p-5 lg:p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[16px] font-bold text-[#181825]">Transaksi Terakhir</h2>
-          <button 
-            onClick={() => router.push('/transactions')}
-            className="text-[12px] text-[#5b4fe0] font-bold hover:bg-[#5b4fe0]/10 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Lihat semua →
-          </button>
-        </div>
+      {/* Recent Transactions & Budget Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        <div className="flex flex-col gap-1">
-          {recentData.map((txn, idx) => {
-            const isIncome = txn.type === 'INCOME';
-            const dateObj = new Date(txn.date);
-            const dateStr = `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`;
-            
-            return (
-              <div 
-                key={idx} 
-                onClick={() => router.push('/transactions')}
-                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors group cursor-pointer"
-              >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm transition-transform group-hover:scale-105 ${
-                  isIncome 
-                    ? (theme === "feminine" ? "bg-pink-500 shadow-pink-500/20" : "bg-gradient-to-br from-[#0ecf8f] to-[#08a873]") 
-                    : (theme === "feminine" ? "bg-fuchsia-600 shadow-fuchsia-500/20" : "bg-gradient-to-br from-[#ff4d6d] to-[#e11d48]")
-                }`}>
-                  {isIncome ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+        {/* Recent Transactions List */}
+        <div className="bg-white border border-[#e9e9f2] rounded-[24px] p-5 lg:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-[16px] font-bold text-[#181825]">Recent Transactions</h2>
+            <div className="w-8 h-8 rounded-full bg-[#f8fafc] flex items-center justify-center border border-[#e9e9f2]">
+              <ArrowRightLeft className="w-3.5 h-3.5 text-[#6b6d80]" />
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            {recentData.map((txn: any, idx: number) => {
+              const isIncome = txn.type === "INCOME";
+              const dateObj = new Date(txn.date);
+              
+              return (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#f8fafc] transition-colors group border border-transparent hover:border-[#e9e9f2]">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${
+                      isIncome ? "bg-[#e8fbf4] text-[#0ecf8f]" : "bg-[#fff0f2] text-[#ff4d6d]"
+                    }`}>
+                      {isIncome ? <ArrowDownRight className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <h4 className="text-[14px] font-bold text-[#181825] mb-1">{txn.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#f1f1f5] text-[#6b6d80]">
+                          {txn.category_name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <p className={`text-[15px] font-bold mb-1 ${isIncome ? "text-[#0ecf8f]" : "text-[#181825]"}`}>
+                      {isIncome ? "+" : "-"}{formatIDR(txn.amount)}
+                    </p>
+                    <p className="text-[11px] font-medium text-[#9a9cae] flex items-center justify-end gap-1">
+                      <CalendarDays className="w-3 h-3" />
+                      {dateObj.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                    </p>
+                  </div>
                 </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-[14px] font-bold text-[#181825] truncate group-hover:text-[#5b4fe0] transition-colors">{txn.name || txn.description}</h4>
-                  <p className="text-[12px] text-[#9a9cae] mt-0.5 font-medium">
-                    {txn.category_name} · {dateStr}
-                  </p>
-                </div>
-                
-                <div className={`text-[14px] font-bold shrink-0 ${
-                  isIncome ? 'text-[#08a873]' : 'text-[#e11d48]'
-                }`}>
-                  {isIncome ? '+' : '-'}{formatIDR(txn.amount)}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   );
 }
