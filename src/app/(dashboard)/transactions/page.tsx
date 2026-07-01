@@ -22,8 +22,9 @@ const formatIDR = (amount: number) => {
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; type?: string; month?: string; year?: string }
+  searchParams: Promise<{ search?: string; type?: string; month?: string; year?: string }>
 }) {
+  const resolvedParams = await searchParams;
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user_data")?.value;
   const theme = cookieStore.get("moneytrack_theme")?.value || "masculine";
@@ -60,8 +61,8 @@ export default async function TransactionsPage({
     console.error("Error fetching data:", err);
   }
 
-  const query = searchParams.search?.toLowerCase() || "";
-  const typeFilter = searchParams.type || "ALL";
+  const query = resolvedParams.search?.toLowerCase() || "";
+  const typeFilter = resolvedParams.type || "ALL";
 
   const filteredTransactions = transactions.filter((txn: any) => {
     if (typeFilter !== "ALL" && txn.type !== typeFilter) return false;
@@ -152,17 +153,19 @@ export default async function TransactionsPage({
             />
           </form>
 
-          <div className={`flex w-full sm:w-auto p-1 rounded-xl ${
-            theme === "feminine" ? "bg-pink-100/50" : "bg-slate-100"
-          }`}>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto p-1">
             {(["ALL", "INCOME", "OUTCOME"] as const).map((t) => (
               <Link
                 key={t}
                 href={`/transactions?type=${t}${query ? `&search=${query}` : ""}`}
-                className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[13px] font-bold transition-all text-center ${
+                className={`flex-1 sm:flex-none px-4 py-2 rounded-full text-[12px] font-semibold transition-all text-center ${
                   typeFilter === t
-                    ? (theme === "feminine" ? "bg-white text-pink-600 shadow-sm" : "bg-white text-indigo-600 shadow-sm")
-                    : (theme === "feminine" ? "text-pink-400 hover:text-pink-600" : "text-slate-500 hover:text-slate-700")
+                    ? t === "INCOME"
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
+                      : t === "OUTCOME"
+                      ? "bg-rose-500 text-white shadow-md shadow-rose-500/25"
+                      : "bg-[#5b4fe0] text-white shadow-md shadow-indigo-500/25"
+                    : "bg-white border border-[#e9e9f2] text-[#6b6d80] hover:border-[#c0c0d0]"
                 }`}
               >
                 {t === "ALL" ? "Semua" : t === "INCOME" ? "Pemasukan" : "Pengeluaran"}
