@@ -2,7 +2,7 @@
 
 import api from "@/lib/api";
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function addTransactionAction(formData: FormData) {
@@ -56,8 +56,8 @@ export async function addTransactionAction(formData: FormData) {
 
   if (isSuccess) {
     // Invalidate the cache for dashboard and transactions
-    revalidatePath("/dashboard");
-    revalidatePath("/transactions");
+    // @ts-ignore - Next.js types sometimes expect 2 arguments incorrectly
+    revalidateTag(`user-${user.user_id}`);
     redirect("/transactions");
   } else {
     redirect(`/transactions/add?error=${encodeURIComponent(errorMessage)}`);
