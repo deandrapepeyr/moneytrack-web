@@ -231,41 +231,43 @@ export default async function TransactionsPage({
                       const isIncome = txn.type === "INCOME";
                       
                       return (
-                        <div key={txn.id || txn.name} className={`flex items-center justify-between p-3 rounded-2xl transition-colors group border border-transparent ${
-                          theme === "feminine" ? "hover:bg-pink-50/50 hover:border-pink-100" : "hover:bg-slate-50 hover:border-slate-100"
-                        }`}>
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${
-                              isIncome 
-                                ? (theme === "feminine" ? "bg-fuchsia-100 text-fuchsia-500" : "bg-emerald-50 text-emerald-500")
-                                : (theme === "feminine" ? "bg-pink-100 text-pink-500" : "bg-rose-50 text-rose-500")
-                            }`}>
-                              {isIncome ? <ArrowDownRight className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
-                            </div>
-                            <div>
-                              <h4 className={`text-[14px] font-bold mb-1 ${
-                                theme === "feminine" ? "text-pink-950" : "text-slate-900"
-                              }`}>{txn.name || txn.description}</h4>
-                              <div className="flex items-center gap-2">
-                                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md ${
-                                  theme === "feminine" ? "bg-pink-50 text-pink-600" : "bg-slate-100 text-slate-600"
-                                }`}>
-                                  {txn.category_name}
-                                </span>
+                        <Link key={txn.transaction_id || txn.name} href={`/transactions/edit/${txn.transaction_id}`} className="block">
+                          <div className={`flex items-center justify-between p-3 rounded-2xl transition-colors group border border-transparent ${
+                            theme === "feminine" ? "hover:bg-pink-50/50 hover:border-pink-100" : "hover:bg-slate-50 hover:border-slate-100"
+                          }`}>
+                            <div className="flex items-center gap-4">
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${
+                                isIncome 
+                                  ? (theme === "feminine" ? "bg-fuchsia-100 text-fuchsia-500" : "bg-emerald-50 text-emerald-500")
+                                  : (theme === "feminine" ? "bg-pink-100 text-pink-500" : "bg-rose-50 text-rose-500")
+                              }`}>
+                                {isIncome ? <ArrowDownRight className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
+                              </div>
+                              <div>
+                                <h4 className={`text-[14px] font-bold mb-1 ${
+                                  theme === "feminine" ? "text-pink-950" : "text-slate-900"
+                                }`}>{txn.name || txn.description}</h4>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md ${
+                                    theme === "feminine" ? "bg-pink-50 text-pink-600" : "bg-slate-100 text-slate-600"
+                                  }`}>
+                                    {txn.category_name}
+                                  </span>
+                                </div>
                               </div>
                             </div>
+                            
+                            <div className="text-right">
+                              <p className={`text-[15px] font-bold ${
+                                isIncome 
+                                  ? (theme === "feminine" ? "text-fuchsia-500" : "text-emerald-500")
+                                  : (theme === "feminine" ? "text-pink-900" : "text-slate-900")
+                              }`}>
+                                {isIncome ? "+" : "-"}{formatIDR(txn.amount)}
+                              </p>
+                            </div>
                           </div>
-                          
-                          <div className="text-right">
-                            <p className={`text-[15px] font-bold ${
-                              isIncome 
-                                ? (theme === "feminine" ? "text-fuchsia-500" : "text-emerald-500")
-                                : (theme === "feminine" ? "text-pink-900" : "text-slate-900")
-                            }`}>
-                              {isIncome ? "+" : "-"}{formatIDR(txn.amount)}
-                            </p>
-                          </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>

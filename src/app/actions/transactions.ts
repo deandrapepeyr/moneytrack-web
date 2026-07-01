@@ -63,3 +63,108 @@ export async function addTransactionAction(formData: FormData) {
     redirect(`/transactions/add?error=${encodeURIComponent(errorMessage)}`);
   }
 }
+
+export async function updateTransactionAction(formData: FormData) {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("user_data")?.value;
+  const token = cookieStore.get("auth_token")?.value;
+  
+  if (!userCookie || !token) {
+    redirect("/login");
+  }
+
+  let user = null;
+  try {
+    try { user = JSON.parse(decodeURIComponent(userCookie)); } 
+    catch { user = JSON.parse(userCookie); }
+  } catch (e) {
+    redirect("/login");
+  }
+
+  const transaction_id = formData.get("id") as string;
+  const type = formData.get("type") as string;
+  const amount = parseInt(formData.get("amount") as string, 10);
+  const description = formData.get("name") as string;
+  const category_id = formData.get("category") as string;
+  const date = formData.get("date") as string;
+  
+  let isSuccess = false;
+  let errorMessage = "";
+
+  try {
+    const response = await api.post("transactions/update", {
+      user_id: user.user_id,
+      token: token,
+      transaction_id,
+      type,
+      amount,
+      category_id,
+      description,
+      date
+    });
+
+    if (response.success) {
+      isSuccess = true;
+    } else {
+      errorMessage = response.error?.message || "Gagal mengupdate transaksi";
+    }
+  } catch (error: any) {
+    errorMessage = error.message || "Terjadi kesalahan server";
+  }
+
+  if (isSuccess) {
+    // @ts-ignore
+    revalidateTag(`user-${user.user_id}`);
+    redirect("/transactions");
+  } else {
+    redirect(`/transactions/edit/${transaction_id}?error=${encodeURIComponent(errorMessage)}`);
+  }
+}
+
+export async function deleteTransactionAction(formData: FormData) {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("user_data")?.value;
+  const token = cookieStore.get("auth_token")?.value;
+  
+  if (!userCookie || !token) {
+    redirect("/login");
+  }
+
+  let user = null;
+  try {
+    try { user = JSON.parse(decodeURIComponent(userCookie)); } 
+    catch { user = JSON.parse(userCookie); }
+  } catch (e) {
+    redirect("/login");
+  }
+
+  const transaction_id = formData.get("id") as string;
+  
+  let isSuccess = false;
+  let errorMessage = "";
+
+  try {
+    const response = await api.post("transactions/delete", {
+      user_id: user.user_id,
+      token: token,
+      transaction_id
+    });
+
+    if (response.success) {
+      isSuccess = true;
+    } else {
+      errorMessage = response.error?.message || "Gagal menghapus transaksi";
+    }
+  } catch (error: any) {
+    errorMessage = error.message || "Terjadi kesalahan server";
+  }
+
+  if (isSuccess) {
+    // @ts-ignore
+    revalidateTag(`user-${user.user_id}`);
+    redirect("/transactions");
+  } else {
+    redirect(`/transactions/edit/${transaction_id}?error=${encodeURIComponent(errorMessage)}`);
+  }
+}
+
